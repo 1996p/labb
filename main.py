@@ -51,7 +51,12 @@ class Application(QMainWindow):
         if not(0 < eps < 1):
             self.ui.error.setText("Точность\nдолжна быть\n >0 & <1")
             return
-        fig = refraction_reflection_graph(self, left_border, right_border, eps)
+
+        try:
+            fig = refraction_reflection_graph(self, left_border, right_border, eps)
+        except ValueError:
+            self.ui.error.setText("В промежутке нет корней...")
+            return
 
         if self.canvas:
             self.companovka_for_mpl.removeWidget(self.toolbar)
