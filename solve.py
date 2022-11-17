@@ -2,7 +2,7 @@ import math
 import matplotlib.pyplot as plt
 import numpy as np
 from time import time
-
+from consts import EPS
 
 def refraction_reflection_graph(obj, left_border, right_border, eps):
     fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(5.11, 3.31), dpi=100)
@@ -26,9 +26,7 @@ def refraction_reflection_graph(obj, left_border, right_border, eps):
     return fig
 
 
-def get_root(left_root_border: [int, float], right_root_border: [int, float], eps: float):
-
-
+def get_root(left_root_border: float, right_root_border: float, eps: float):
     if not has_root(left_root_border, right_root_border, eps):
         raise ValueError("Корней в промежутке нет")
 
@@ -46,12 +44,32 @@ def get_root(left_root_border: [int, float], right_root_border: [int, float], ep
 
         while counter < 1000000:
             approximate_root = fi(last_approximate_root)
-            if abs(approximate_root - last_approximate_root) < eps:
+            if abs(approximate_root - last_approximate_root) < EPS:
                 break
             counter += 1
             last_approximate_root = approximate_root
 
         return approximate_root, time() - start_time, counter
+    else:
+        max = abs(fd(left_root_border))
+        i = left_root_border
+        while i < right_root_border:
+            cur = abs(fd(i))
+            if cur > max:
+                max = cur
+            i += eps
+
+
+        last_approximate_root = (right_root_border - left_root_border) / 2
+        counter = 0
+        while counter < 100000000:
+            approximate_root = last_approximate_root - f(last_approximate_root) / max
+            if abs(approximate_root - last_approximate_root) < EPS:
+                break
+            counter += 1
+            last_approximate_root = approximate_root
+
+        return approximate_root, 3, counter
 
 
 def has_root(left_border: float, right_border: float, eps: float) -> bool:
@@ -67,6 +85,7 @@ def has_root(left_border: float, right_border: float, eps: float) -> bool:
 def convergence(left_border: float, right_border: float, eps: float) -> bool:
     while left_border < right_border:
         left_border += eps
+        a = abs(fd(left_border))
         if abs(fd(left_border)) >= 1:
             return False
     return True
@@ -83,7 +102,7 @@ def fi(x: float) -> float:
 
 
 def fd(x: float) -> float:
-    h = 0.1 ** 100
+    h = 0.000000000001
     return (fi(x + h) - fi(x - h)) / (2 * h)
 
 
