@@ -3,12 +3,15 @@ from PyQt5 import QtWidgets, uic
 from PyQt5.Qt import *
 import matplotlib
 
-matplotlib.use('Qt5Agg')
+matplotlib.use('Qt5Agg') # Позволяет подружить matplotlib и PyQt5
+
+
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
 from solve import refraction_reflection_graph
 
 
+# Класс, который отвечает за отображение графика
 class Canvas(FigureCanvasQTAgg):
     def __init__(self, fig, parent=None):
         super(Canvas, self).__init__(fig)
@@ -17,15 +20,15 @@ class Canvas(FigureCanvasQTAgg):
 class Application(QMainWindow):
     def __init__(self):
         QtWidgets.QMainWindow.__init__(self)
-        self.ui = uic.loadUi('main.ui', self)
+        self.ui = uic.loadUi('main.ui', self) # инициализируем виджеты
         # self.resize(1366, 768)
         self.init_UI()
         self.connectUi()
 
     def init_UI(self):
-        self.setWindowIcon(QIcon('Ok.png'))
-        self.canvas = None
-        self.companovka_for_mpl = QVBoxLayout(self.MplWidget)
+        # self.setWindowIcon(QIcon('Ok.png'))
+        self.canvas = None # хранит экземпляр класса Canvas
+        self.companovka_for_mpl = QVBoxLayout(self.MplWidget) # виджет для отображения графика
 
     def connectUi(self):
         self.ui.solveBtn.clicked.connect(self.prepare_canavas_and_toolbar)
@@ -33,7 +36,6 @@ class Application(QMainWindow):
 
     def prepare_canavas_and_toolbar(self):
         try:
-
             left_border = float(self.ui.left_border.text())
             right_border = float(self.ui.right_border.text())
             eps = float(self.ui.eps.text())
@@ -45,7 +47,7 @@ class Application(QMainWindow):
             self.ui.error.setText('')
 
         if left_border >= right_border:
-            self.ui.error.setText("Левая граница\nне может\nбыть меньше\nправой")
+            self.ui.error.setText("Левая граница\nне может\nбыть больше\nправой")
             return
 
         if not(0 < eps < 1):
@@ -57,7 +59,7 @@ class Application(QMainWindow):
         except ValueError:
             self.ui.error.setText("В промежутке нет корней...")
             return
-
+        # Если графика есть, то мы его удаляем
         if self.canvas:
             self.companovka_for_mpl.removeWidget(self.toolbar)
             self.companovka_for_mpl.removeWidget(self.canvas)
@@ -66,7 +68,7 @@ class Application(QMainWindow):
             self.canvas.hide()
             self.toolbar.hide()
         # +++ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
+        # Вывыдим перерисованный график
         self.canvas = Canvas(fig)  # (self.fig)
         self.companovka_for_mpl.addWidget(self.canvas)
         self.toolbar = NavigationToolbar2QT(self.canvas, self)
@@ -77,6 +79,8 @@ class Application(QMainWindow):
         self.ui.result.setText('')
         self.ui.left_border.setText('')
         self.ui.right_border.setText('')
+        self.ui.feed.setText('')
+
 
 
 if __name__ == '__main__':

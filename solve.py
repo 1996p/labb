@@ -7,17 +7,17 @@ from consts import EPS
 def refraction_reflection_graph(obj, left_border, right_border, eps):
     fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(5.11, 3.31), dpi=100)
 
-    ax.axhline(y=0, color='k')
-    ax.axvline(x=0, color='k')
-    ax.grid()
+    ax.axhline(y=0, color='k') # рисует ось х
+    ax.axvline(x=0, color='k') # рисует ось y
+    ax.grid() # рисует ось сетку
 
-    function_values = []
-    function_args = []
+    function_values = [] # y
+    function_args = [] # x
     for i in np.linspace(left_border, right_border, 20):
         function_values.append(f(i))
         function_args.append(i)
 
-    ax.plot(function_args, function_values)
+    ax.plot(function_args, function_values) # рисуем график
     plt.xlim(left_border, right_border)
     plt.ylim(-5, 5)
     root, spent_time, iters_count = get_root(left_border, right_border, eps)
@@ -35,16 +35,10 @@ def get_root(left_root_border: float, right_root_border: float, eps: float):
         counter = 0
         start_time = time()
         last_approximate_root = (right_root_border - left_root_border) / 2
-        # approximate_root = fi(last_approximate_root)
-        #
-        # while abs(approximate_root - last_approximate_root) >= eps:
-        #     counter += 1
-        #     last_approximate_root = approximate_root
-        #     approximate_root = fi(approximate_root)
 
-        while counter < 1000000:
+        while counter < 100000:
             approximate_root = fi(last_approximate_root)
-            if abs(approximate_root - last_approximate_root) < EPS:
+            if abs(approximate_root - last_approximate_root) < eps:
                 break
             counter += 1
             last_approximate_root = approximate_root
@@ -57,19 +51,20 @@ def get_root(left_root_border: float, right_root_border: float, eps: float):
             cur = abs(fd(i))
             if cur > max:
                 max = cur
-            i += eps
-
+            i += 0.01
 
         last_approximate_root = (right_root_border - left_root_border) / 2
         counter = 0
-        while counter < 100000000:
+        start_time = time()
+
+        while counter < 100000:
             approximate_root = last_approximate_root - f(last_approximate_root) / max
-            if abs(approximate_root - last_approximate_root) < EPS:
+            if abs(approximate_root - last_approximate_root) < eps:
                 break
             counter += 1
             last_approximate_root = approximate_root
 
-        return approximate_root, 3, counter
+        return approximate_root, time() - start_time, counter
 
 
 def has_root(left_border: float, right_border: float, eps: float) -> bool:
@@ -85,20 +80,19 @@ def has_root(left_border: float, right_border: float, eps: float) -> bool:
 def convergence(left_border: float, right_border: float, eps: float) -> bool:
     while left_border < right_border:
         left_border += eps
-        a = abs(fd(left_border))
         if abs(fd(left_border)) >= 1:
             return False
     return True
 
 
 def f(x: float) -> float:
-    return math.e ** x - 5 * x
-    # return x * (2**x) - 1
+    # return math.e ** x - 5 * x
+    return x * (2**x) - 1
 
 
 def fi(x: float) -> float:
-    # return 1 / (2**x)
-    return (math.e ** x) / 5
+    return 1 / (2**x)
+    # return (math.e ** x) / 5
 
 
 def fd(x: float) -> float:
