@@ -2,7 +2,7 @@ import math
 import matplotlib.pyplot as plt
 import numpy as np
 from time import time
-from consts import EPS
+
 
 def refraction_reflection_graph(obj, left_border, right_border, eps):
     fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(5.11, 3.31), dpi=100)
@@ -22,7 +22,7 @@ def refraction_reflection_graph(obj, left_border, right_border, eps):
     plt.ylim(-5, 5)
     root, spent_time, iters_count = get_root(left_border, right_border, eps)
     obj.ui.result.setText(str(root))
-    obj.ui.feed.append(f"При точности {eps} -- {spent_time} s. -- {iters_count} итераций")
+    obj.ui.feed.append(f"При точности {eps} -- {spent_time} s. -- {iters_count} итераций\n{'-'*52}")
     return fig
 
 
@@ -42,6 +42,9 @@ def get_root(left_root_border: float, right_root_border: float, eps: float):
                 break
             counter += 1
             last_approximate_root = approximate_root
+
+        if counter == 100000:
+            approximate_root = "Корень не найден"
 
         return approximate_root, time() - start_time, counter
     else:
@@ -63,6 +66,9 @@ def get_root(left_root_border: float, right_root_border: float, eps: float):
                 break
             counter += 1
             last_approximate_root = approximate_root
+
+        if counter == 100000:
+            approximate_root = "Корень не найден"
 
         return approximate_root, time() - start_time, counter
 
@@ -86,13 +92,17 @@ def convergence(left_border: float, right_border: float, eps: float) -> bool:
 
 
 def f(x: float) -> float:
-    # return math.e ** x - 5 * x
-    return x * (2**x) - 1
+    # return x * (2**x) - 1
+    return math.e ** x - 5 * x
+    # return x - math.cos(x)
+    # return 2 * x + math.cos(x) - 0.5
 
 
 def fi(x: float) -> float:
-    return 1 / (2**x)
-    # return (math.e ** x) / 5
+    # return 1 / (2**x)
+    return (math.e ** x) / 5
+    # return math.cos(x)
+    # return (0.5 - math.cos(x)) / 2
 
 
 def fd(x: float) -> float:
